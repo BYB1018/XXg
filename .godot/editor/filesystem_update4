@@ -1,0 +1,10 @@
+res://main.tscn
+res://scripts/CreateShape.gd
+res://scenes/Player.tscn
+res://scenes/Weapon.tscn
+res://scenes/Enemy.tscn
+res://scenes/Main.tscn
+res://scripts/UI.gd
+res://scripts/LevelUpUI.gd
+res://scenes/LevelUpUI.tscn
+res://scripts/Weapon.gd

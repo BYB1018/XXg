@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://t4uymjtvn7gg"]
+
+[ext_resource type="Script" path="res://scripts/Weapon.gd" id="1_weapon"]
+
+[node name="Weapon" type="Node2D"]
+script = ExtResource("1_weapon")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+autostart = true
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(32, 0)
+
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
