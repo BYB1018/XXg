@@ -4,9 +4,16 @@ extends Node2D
 @export var attack_speed: float = 2.0  # 每秒攻击次数
 @export var attack_range: float = 500.0  # 增加射程
 
+# 新增属性的默认值
+var default_shot_count: int = 1
+var default_shot_spread: float = 0
+var default_damage: float = 20.0
+var default_attack_speed: float = 2.0
+var default_attack_range: float = 500.0
+
 # 新增属性
-var shot_count: int = 1
-var shot_spread: float = 0
+var shot_count: int = default_shot_count
+var shot_spread: float = default_shot_spread
 var piercing: bool = false
 var bounce_count: int = 0
 var homing: bool = false
@@ -35,9 +42,30 @@ func _ready():
 	else:
 		print("Timer missing!")
 	
+	reset_weapon()
+
+func reset_weapon():
+	# 重置所有属性到默认值
+	shot_count = default_shot_count
+	shot_spread = default_shot_spread
+	damage = default_damage
+	attack_speed = default_attack_speed
+	attack_range = default_attack_range
+	
+	# 重置特殊效果
+	piercing = false
+	bounce_count = 0
+	homing = false
+	homing_strength = 5.0
+	explosive = false
+	explosion_radius = 0
+	split_shot = false
+	is_laser = false
+	laser_width = 2.0
+	
+	# 重置计时器
 	$AttackTimer.wait_time = 1.0 / attack_speed
 	can_attack = true
-	print("Weapon ready, attack speed: ", attack_speed)
 
 func _physics_process(_delta):
 	if !can_attack:

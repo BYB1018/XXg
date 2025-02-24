@@ -8,3 +8,4 @@ res://scripts/UI.gd
 res://scripts/LevelUpUI.gd
 res://scenes/LevelUpUI.tscn
 res://scripts/Weapon.gd
+res://scripts/ExpOrb.gd

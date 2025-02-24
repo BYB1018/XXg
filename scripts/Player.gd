@@ -7,8 +7,11 @@ var current_health: float
 var current_exp: float = 0
 var level: int = 1
 var exp_to_next_level: float = 100  # 升级所需经验
+var game_start_time: float
+var enemies_killed: int = 0
 
 @onready var level_up_ui = preload("res://scenes/LevelUpUI.tscn")
+@onready var game_over_ui = preload("res://scenes/GameOverUI.tscn")  # 预加载GameOverUI场景
 var ui_instance = null
 
 func _ready():
@@ -16,7 +19,7 @@ func _ready():
 	
 	# 设置碰撞层
 	collision_layer = 1  # player层
-	collision_mask = 2   # 只与enemy层碰撞
+	collision_mask = 6   # 与enemy层(2)和exp_orb层(4)碰撞
 	
 	# 延迟创建UI实例
 	call_deferred("_setup_ui")
@@ -29,6 +32,14 @@ func _ready():
 	else:
 		print("Weapon node missing!")
 		print("Available children: ", get_children())
+	
+	game_start_time = Time.get_unix_time_from_system()
+	
+	# 创建GameOverUI
+	var game_over_instance = game_over_ui.instantiate()
+	add_child(game_over_instance)
+	game_over_instance.restart_game.connect(_on_restart_game)
+	game_over_instance.quit_game.connect(_on_quit_game)
 
 func _setup_ui():
 	print("Setting up UI manually...")
@@ -77,8 +88,15 @@ func take_damage(damage: float):
 		die()
 
 func die():
-	# TODO: 实现游戏结束逻辑
-	queue_free()
+	var survival_time = Time.get_unix_time_from_system() - game_start_time
+	var score = level * 1000 + enemies_killed * 100
+	
+	# 显示结算界面
+	var game_over_instance = $GameOverUI
+	if game_over_instance:
+		game_over_instance.show_game_over(score, survival_time, enemies_killed)
+	else:
+		print("Error: GameOverUI not found!")
 
 func gain_exp(amount: float):
 	current_exp += amount
@@ -100,6 +118,49 @@ func level_up():
 	else:
 		print("Error: UI instance is null!")
 
-func _on_upgrade_selected(upgrade: String, upgrade_name: String, description: String):
+func _on_upgrade_selected(_upgrade: String, upgrade_name: String, description: String):
 	print("Selected upgrade: ", upgrade_name, " (", description, ")")
-	current_health = max_health  # 升级后恢复生命值
+	# 移除回血效果，升级时不再恢复生命值
+
+func _on_restart_game():
+	# 重置玩家属性
+	current_health = max_health
+	current_exp = 0
+	level = 1
+	exp_to_next_level = 100
+	enemies_killed = 0
+	
+	# 清除所有敌人
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		enemy.queue_free()
+		
+	# 清除所有经验球
+	var exp_orbs = get_tree().get_nodes_in_group("exp_orb")
+	for orb in exp_orbs:
+		orb.queue_free()
+	
+	# 重置武器
+	var weapon_holder = $WeaponHolder
+	var weapon = weapon_holder.get_node("Weapon")
+	if weapon:
+		weapon.queue_free()
+	
+	weapon = load("res://scenes/Weapon.tscn").instantiate()
+	weapon_holder.add_child(weapon)
+	weapon.name = "Weapon"
+	weapon.reset_weapon()  # 确保武器属性被重置
+	
+	# 重置位置
+	position = Vector2(576, 324)  # 屏幕中心
+	
+	# 隐藏游戏结束UI
+	var game_over_instance = $GameOverUI
+	if game_over_instance:
+		game_over_instance.hide()
+
+func _on_quit_game():
+	get_tree().quit()
+
+func _on_enemy_killed():
+	enemies_killed += 1

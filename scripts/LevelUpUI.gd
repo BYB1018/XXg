@@ -7,56 +7,83 @@ var obtained_upgrades = []
 
 # 预定义所有效果函数
 func _apply_nuclear_shot(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.explosive = true
-	weapon.explosion_radius *= 2  # 增大爆炸范围
-	weapon.damage *= 2           # 增加伤害
-	# 不改变shot_count，保持原有的多重射击
-	weapon.attack_speed *= 0.7   # 略微降低攻击速度作为平衡
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.explosive = true
+		weapon.explosion_radius *= 2  # 增大爆炸范围
+		weapon.damage *= 2           # 增加伤害
+		# 不改变shot_count，保持原有的多重射击
+		weapon.attack_speed *= 0.7   # 略微降低攻击速度作为平衡
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_star_shot(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.shot_count += 2       # 增加2发子弹，而不是设为固定值
-	weapon.shot_spread = 360.0 / weapon.shot_count  # 均匀分布
-	weapon.homing = true
-	weapon.homing_strength = 8.0
-	weapon.split_shot = true     # 添加分裂效果
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.shot_count += 2       # 增加2发子弹，而不是设为固定值
+		weapon.shot_spread = 360.0 / weapon.shot_count  # 均匀分布
+		weapon.homing = true
+		weapon.homing_strength = 8.0
+		weapon.split_shot = true     # 添加分裂效果
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_laser_grid(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.piercing = true
-	weapon.bounce_count += 3     # 增加弹射次数而不是设为固定值
-	weapon.is_laser = true
-	weapon.laser_width = 4.0
-	if weapon.shot_count > 1:    # 如果有多重射击，增加激光宽度
-		weapon.laser_width *= 1.5
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.piercing = true
+		weapon.bounce_count += 3
+		weapon.is_laser = true
+		weapon.laser_width = 4.0
+		if weapon.shot_count > 1:
+			weapon.laser_width *= 1.5
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_multi_shot(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.shot_count = 3
-	weapon.shot_spread = 30
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.shot_count = 3
+		weapon.shot_spread = 30
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_piercing(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.piercing = true
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.piercing = true
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_bounce(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.bounce_count = 2
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.bounce_count = 2
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_homing(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.homing = true
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.homing = true
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_explosive(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.explosive = true
-	weapon.explosion_radius = 100
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.explosive = true
+		weapon.explosion_radius = 100
+	else:
+		print("Error: Weapon not found!")
 
 func _apply_rapid_fire(player):
-	var weapon = player.get_node("%Weapon")
-	weapon.attack_speed *= 1.5
-	weapon.get_node("AttackTimer").wait_time = 1.0 / weapon.attack_speed
+	var weapon = player.get_node("WeaponHolder/Weapon")
+	if weapon:
+		weapon.attack_speed *= 1.5
+		weapon.get_node("AttackTimer").wait_time = 1.0 / weapon.attack_speed
+	else:
+		print("Error: Weapon not found!")
 
 # 组合升级规则
 var combo_upgrades = {
@@ -227,3 +254,7 @@ func _on_upgrade_selected(upgrade: String):
 	
 	# 发送更详细的升级信息
 	upgrade_selected.emit(upgrade, upgrade_info["name"], upgrade_info["description"])
+
+func reset_upgrades():
+	obtained_upgrades.clear()
+	print("Upgrades reset")

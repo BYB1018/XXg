@@ -1,14 +1,16 @@
 extends CharacterBody2D
 
-@export var move_speed: float = 150.0
-@export var max_health: float = 20.0
-@export var attack_damage: float = 10.0
+@export var move_speed: float = 112.5
+@export var max_health: float = 30.0
+@export var attack_damage: float = 15.0
 @export var attack_cooldown: float = 1.0
-@export var experience_value: float = 10.0
+@export var experience_value: float = 15.0
 
 var current_health: float
 var target_player: Node2D  # 改名避免shadowing
 var last_attack_time: float = 0.0
+
+signal enemy_killed
 
 func _ready():
 	add_to_group("enemy")
@@ -36,21 +38,24 @@ func _on_hitbox_body_entered(body):
 			last_attack_time = current_time
 			body.take_damage(attack_damage)
 
-func take_damage(incoming_damage: float):
-	current_health -= incoming_damage
-	print("Enemy health: ", current_health)
-	
-	# 添加受击效果
-	modulate = Color(1, 0.5, 0.5)  # 变红
-	var tween = create_tween()
-	tween.tween_property(self, "modulate", Color(1, 1, 1), 0.2)  # 恢复正常颜色
-	
+func take_damage(amount: float):
+	current_health -= amount
 	if current_health <= 0:
+		var player = get_tree().get_first_node_in_group("player")
+		if player:
+			player._on_enemy_killed()
 		die()
 
 func die():
-	# 掉落经验值
-	var exp_receiver = get_tree().get_first_node_in_group("player")
-	if exp_receiver and exp_receiver.has_method("gain_exp"):
-		exp_receiver.gain_exp(experience_value)
-	queue_free()
+	print("Enemy died at position: ", global_position)
+	
+	# 生成经验豆
+	var exp_orb = preload("res://scenes/ExpOrb.tscn").instantiate()
+	exp_orb.value = experience_value
+	exp_orb.global_position = global_position
+	
+	# 使用call_deferred来延迟添加经验豆和删除敌人
+	get_tree().root.call_deferred("add_child", exp_orb)
+	call_deferred("queue_free")
+	
+	print("ExpOrb spawned with value: ", experience_value)
