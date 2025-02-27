@@ -1,0 +1,7 @@
+res://scenes/LevelUpUI.tscn
+res://scripts/Bullet.gd
+res://scenes/Player.tscn
+res://scripts/UI.gd
+res://scenes/Bullet.tscn
+res://scenes/Main.tscn
+res://scripts/MainScene.gd
